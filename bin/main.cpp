@@ -19,7 +19,7 @@ value = from_string(value1);
 //    std::cout << value << ' ';
 //    std::cout << test;
 //    std::cout << "test output";
-int2023_t sum = value - test;
-    std::cout << value << test << sum;
+int2023_t sum = value / test;
+    std::cout << value;
     return 0;
 }

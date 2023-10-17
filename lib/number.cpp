@@ -16,7 +16,6 @@ int2023_t from_int(int32_t i) {
     } else {
         ans.digit[0] = '-';
     }
-    std::cout << '\n';
     int abs_i = abs(i);
     int count = 0;
     while (abs_i > 0) {
@@ -225,7 +224,7 @@ int2023_t operator-(const int2023_t &lhs, const int2023_t &rhs) {
 }
 
 // Function to find the local maximum index in a number
-int find_pos(const int2023_t &nums) {
+int find_pos(const int2023_t nums) {
     int pos = 1;
     while (pos < 253) {
         if (nums.digit[pos] != '0') {
@@ -312,7 +311,7 @@ int2023_t operator/(const int2023_t &lhs, const int2023_t &rhs) {
 
     //"Division by zero" and "Division of zero" cases
     if (lhs == from_int(0) || rhs == from_int(0)) {
-        return rhs;
+        return from_int(0);
     }
 
     //"Divisor is bigger than dividend" case
@@ -321,10 +320,7 @@ int2023_t operator/(const int2023_t &lhs, const int2023_t &rhs) {
         return ans;
     }
 
-    int2023_t partial_quotient;
-    fill_up(partial_quotient);
-    int2023_t diff;
-    fill_up(diff);
+    int2023_t partial_quotient = from_int(0);
 
     int flag_rhs_digit = 0;
     if (rhs.digit[rhs_start_pos] > lhs.digit[lhs_start_pos]) {
@@ -332,60 +328,58 @@ int2023_t operator/(const int2023_t &lhs, const int2023_t &rhs) {
     }
 
     //Find the first partial quotient that is bigger than divisor
-    for (int i = 0; i < (253 - rhs_start_pos) + flag_rhs_digit; i++) {
+    for (int i = 0; i < ((253 - rhs_start_pos) + flag_rhs_digit); i++) {
         partial_quotient.digit[rhs_start_pos + i - flag_rhs_digit] = lhs.digit[lhs_start_pos + i];
     }
 
     //Calculation of resulting array length
-    int position = lhs_start_pos + 253 - rhs_start_pos + flag_rhs_digit;
+    int position = lhs_start_pos + (253 - rhs_start_pos) + flag_rhs_digit;
     int result_length = 254 - position;
     char result[result_length];
 
 
     int2023_t remainder = partial_quotient;
-    int2023_t temp;
-    fill_up(temp);
-    int2023_t multiplication;
-    fill_up(multiplication);
+    int2023_t temp = from_int(0);
+    int2023_t multiplication = from_int(0);
+    int2023_t divider = rhs;
+    divider.digit[0] = '+';
 
+    int res_digit = 0;
     for (int i = 0; i < result_length; i++) {
-        int res_raz = 0;
-        temp = remainder - rhs;
-        std::cout << temp.digit[0];
+        temp = remainder - divider;
         if (temp.digit[0] != '-') {
             for (int j = 0; j < 253; j++) {
                 temp.digit[j] = remainder.digit[j];
             }
             int j = 0;
             while (remainder.digit[0] == '+') {
-                remainder = remainder - rhs;
+                remainder = remainder - divider;
                 j++;
             }
-            result[res_raz] = num[j - 1];
-            res_raz++;
+
+            result[res_digit] = num[j - 1];
+            res_digit++;
 
             int t = j - 1;
             multiplication = from_int(t);
-            multiplication = rhs * multiplication;
+            multiplication = divider * multiplication;
             remainder = temp - multiplication;
 
             //Shift left for one position
-
             for (j = 2; j < 253; j++) {
                 remainder.digit[j-1] = remainder.digit[j];
             }
-
             //While remainder is less than divisor - right position should be added (Position is shifted this way)
             remainder.digit[252] = lhs.digit[position];
             position++;
 
         } else {
             //If remainder is less than divisor even with shift - zero is result for current position; shift again
-            result[res_raz] = '0';
-            res_raz++;
-            //сдвигаем остаток на один разряд влево
-            for (int k = 2; k < 253; k++) {
-                remainder.digit[k-1] = remainder.digit[k];
+            result[res_digit] = '0';
+            res_digit++;
+            //Shift left for one position
+            for (int j = 2; j < 253; j++) {
+                remainder.digit[j-1] = remainder.digit[j];
             }
             //While remainder is less than divisor - right position should be added (Position is shifted this way)
             remainder.digit[252] = lhs.digit[position];
@@ -398,6 +392,9 @@ int2023_t operator/(const int2023_t &lhs, const int2023_t &rhs) {
     }
     if (signs_comparison(sign_left, sign_right) == 'd') {
         ans.digit[0] = '-';
+    }
+    else {
+        ans.digit[0] = '+';
     }
 
     return ans;
